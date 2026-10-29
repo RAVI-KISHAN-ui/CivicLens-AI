@@ -37,7 +37,7 @@
   - Integration tests.
   - Commit, push to GitHub, pull.
 
-- [ ] **Phase 6: Frontend App — Dashboard & Evidence Lens**
+- [x] **Phase 6: Frontend App — Dashboard & Evidence Lens**
   - Vite + React 19 + TypeScript + Tailwind CSS v4 setup.
   - Civic instrument design tokens & dual English/Hindi i18n support.
   - Auditor Dashboard with live SSE scan timeline.
@@ -45,7 +45,7 @@
   - Model card view.
   - Commit, push to GitHub, pull.
 
-- [ ] **Phase 7: Citizen Prototype & Comparison View**
+- [x] **Phase 7: Citizen Prototype & Comparison View**
   - 3-step citizen redesigned guide with official source chips.
   - In-memory accessible documents checklist.
   - Official apply button with domain verification.

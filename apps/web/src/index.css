@@ -1,0 +1,113 @@
+/* CivicLens Design Tokens - Reference: Section 12.3 of AGENTS.md */
+:root {
+  --font-sans: "IBM Plex Sans", "IBM Plex Sans Devanagari", system-ui, -apple-system, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+
+  --paper: #FAFAF7;
+  --surface: #FFFFFF;
+  --sunken: #F1F2EE;
+  --ink: #14171F;
+  --ink-2: #4A5162;
+  --border-ui: #767C86;
+  --accent: #1F4FD1;
+  --accent-strong: #173DA6;
+  --blocker: #B42318;
+  --major: #A15C07;
+  --minor: #2E5AAC;
+  --pass: #1E7A46;
+
+  --radius-sm: 6px;
+  --radius-md: 10px;
+}
+
+:root[data-theme="dark"] {
+  --paper: #0E1116;
+  --surface: #151A21;
+  --sunken: #0A0D11;
+  --ink: #E8EAEE;
+  --ink-2: #A9B0BC;
+  --border-ui: #5F6775;
+  --accent: #8CADFF;
+  --accent-strong: #ADC6FF;
+  --blocker: #FF8A80;
+  --major: #F2B14C;
+  --minor: #8AB4FF;
+  --pass: #5CC98A;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #0E1116;
+    --surface: #151A21;
+    --sunken: #0A0D11;
+    --ink: #E8EAEE;
+    --ink-2: #A9B0BC;
+    --border-ui: #5F6775;
+    --accent: #8CADFF;
+    --accent-strong: #ADC6FF;
+    --blocker: #FF8A80;
+    --major: #F2B14C;
+    --minor: #8AB4FF;
+    --pass: #5CC98A;
+  }
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--paper);
+  color: var(--ink);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+body:lang(hi) {
+  line-height: 1.7;
+}
+
+a {
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+a:hover {
+  color: var(--accent-strong);
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* Tabular numbers for all metrics */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Accessibility Skip link */
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: 12px;
+  background: var(--accent);
+  color: #fff;
+  padding: 8px 16px;
+  z-index: 1000;
+  border-radius: var(--radius-sm);
+  transition: top 0.2s;
+}
+
+.skip-link:focus {
+  top: 12px;
+}
