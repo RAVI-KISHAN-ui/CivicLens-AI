@@ -78,9 +78,9 @@ async def analyze_page_evidence(
     )
 
     # Run 1
-    run1 = await client.analyze_bundle(prompt, bundle_str, raw_items)
+    run1 = await client.analyze_bundle(prompt, bundle_str, raw_items, run_index=1)
     # Run 2 (self-consistency)
-    run2 = await client.analyze_bundle(prompt, bundle_str, raw_items)
+    run2 = await client.analyze_bundle(prompt, bundle_str, raw_items, run_index=2)
 
     # Key candidates by (issue_type, tuple(sorted(evidence_ids)))
     run1_keys = {(f.issue_type, tuple(sorted(f.evidence_ids))) for f in run1.findings}

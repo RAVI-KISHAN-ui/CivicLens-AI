@@ -11,6 +11,7 @@ export const CitizenPrototype: React.FC<CitizenPrototypeProps> = ({ t, lang }) =
   const [facts, setFacts] = useState<CitedFact[]>([]);
   const [checkedDocs, setCheckedDocs] = useState<Record<string, boolean>>({});
   const [expandedCitation, setExpandedCitation] = useState<string | null>(null);
+  const [copied, setCopied] = useState<boolean>(false);
 
   useEffect(() => {
     async function loadFacts() {
@@ -33,7 +34,8 @@ export const CitizenPrototype: React.FC<CitizenPrototypeProps> = ({ t, lang }) =
       .map((d) => `[${checkedDocs[d.id] ? 'X' : ' '}] ${d.value}`)
       .join('\n');
     navigator.clipboard.writeText(`Central Sector Scholarship - Document Checklist:\n${listText}`);
-    alert('Document checklist copied to clipboard!');
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   };
 
   return (
@@ -54,7 +56,7 @@ export const CitizenPrototype: React.FC<CitizenPrototypeProps> = ({ t, lang }) =
           {t.proto_title}
         </h2>
         <p style={{ fontSize: '0.875rem', color: 'var(--ink-2)' }}>
-          Every requirement below is cited directly to official government guidelines with zero hallucinations.
+          {t.proto_subtitle}
         </p>
       </div>
 
@@ -68,7 +70,7 @@ export const CitizenPrototype: React.FC<CitizenPrototypeProps> = ({ t, lang }) =
         }}
       >
         <h3 style={{ fontSize: '1.15rem', fontWeight: 700, marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span style={{ backgroundColor: 'var(--accent)', color: '#fff', width: '24px', height: '24px', borderRadius: '50%', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.8rem' }}>1</span>
+          <span style={{ backgroundColor: 'var(--accent)', color: 'var(--accent-fg)', width: '24px', height: '24px', borderRadius: '50%', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.8rem' }}>1</span>
           {t.proto_step1}
         </h3>
 
@@ -100,7 +102,7 @@ export const CitizenPrototype: React.FC<CitizenPrototypeProps> = ({ t, lang }) =
             </div>
           ))
         ) : (
-          <p style={{ color: 'var(--ink-2)', fontStyle: 'italic' }}>Not stated on the official page.</p>
+          <p style={{ color: 'var(--ink-2)', fontStyle: 'italic' }}>{t.proto_not_stated}</p>
         )}
       </section>
 
@@ -115,7 +117,7 @@ export const CitizenPrototype: React.FC<CitizenPrototypeProps> = ({ t, lang }) =
       >
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
           <h3 style={{ fontSize: '1.15rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span style={{ backgroundColor: 'var(--accent)', color: '#fff', width: '24px', height: '24px', borderRadius: '50%', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.8rem' }}>2</span>
+            <span style={{ backgroundColor: 'var(--accent)', color: 'var(--accent-fg)', width: '24px', height: '24px', borderRadius: '50%', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.8rem' }}>2</span>
             {t.proto_step2}
           </h3>
           <button
@@ -129,12 +131,12 @@ export const CitizenPrototype: React.FC<CitizenPrototypeProps> = ({ t, lang }) =
               color: 'var(--ink)'
             }}
           >
-            📋 Copy Checklist
+            📋 {copied ? t.proto_copied : t.proto_copy_checklist}
           </button>
         </div>
 
         <p style={{ fontSize: '0.85rem', color: 'var(--ink-2)', marginBottom: '12px' }}>
-          Check each document once you have scanned or arranged it. State is kept in memory only; zero personal data is collected.
+          {t.proto_checklist_info}
         </p>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
@@ -186,7 +188,7 @@ export const CitizenPrototype: React.FC<CitizenPrototypeProps> = ({ t, lang }) =
           {t.proto_step3}
         </h3>
         <p style={{ fontSize: '0.85rem', color: 'var(--ink-2)', marginBottom: '16px' }}>
-          Ready with eligibility and documents? Proceed straight to the official application window.
+          {t.proto_ready_apply}
         </p>
 
         <a
@@ -197,7 +199,7 @@ export const CitizenPrototype: React.FC<CitizenPrototypeProps> = ({ t, lang }) =
             display: 'inline-block',
             padding: '12px 28px',
             backgroundColor: 'var(--accent)',
-            color: '#fff',
+            color: 'var(--accent-fg)',
             textDecoration: 'none',
             borderRadius: 'var(--radius-sm)',
             fontWeight: 700,

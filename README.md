@@ -21,7 +21,7 @@ An evidence-first auditing instrument that inspects one citizen journey on a rea
 ### 1. Backend Service (FastAPI + SQLite + Playwright)
 
 ```bash
-# Navigate to services/api
+# Navigate to services/api from repository root
 cd services/api
 
 # Run unit and integration tests
@@ -34,7 +34,7 @@ python -m uvicorn civiclens.main:app --reload --port 8000
 ### 2. Frontend Application (React 19 + TypeScript + Vite)
 
 ```bash
-# Navigate to apps/web
+# From repository root (or cd ../.. if in services/api)
 cd apps/web
 
 # Install dependencies and build
@@ -48,7 +48,7 @@ npm run dev
 ### 3. Evaluation & Red-Team Harness
 
 ```bash
-# Run hallucination firewall verification and evaluation
+# From repository root (or cd ../.. if in apps/web)
 python eval/run_eval.py
 ```
 

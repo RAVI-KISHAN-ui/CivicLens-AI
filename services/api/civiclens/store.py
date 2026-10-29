@@ -365,23 +365,9 @@ class Store:
             return res.rowcount > 0
 
     # --- Facts ---
-    def save_fact(self, fact: CitedFact) -> None:
-        import uuid
-        fact_id = fact.id or f"fact_{uuid.uuid4().hex[:8]}"
-        fact.id = fact_id
-        with self._connection() as conn:
-            conn.execute(
-                """
-                INSERT OR REPLACE INTO facts (
-                    id, scan_id, field, value, source_url, evidence_ids, cited_text, human_checked
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-                """,
-                (
-                    fact.id, fact.id.split("_")[0], fact.field, fact.value,
-                    fact.source_url, json.dumps(fact.evidence_ids), fact.cited_text,
-                    1 if fact.human_checked else 0
-                )
-            )
+    def save_fact(self, fact: CitedFact, scan_id: str) -> None:
+        """Saves a cited fact associated with a specific scan."""
+        self.save_scan_fact(scan_id, fact)
 
     def save_scan_fact(self, scan_id: str, fact: CitedFact) -> None:
         import uuid

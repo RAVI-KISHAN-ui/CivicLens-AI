@@ -13,8 +13,8 @@ from civiclens.models import AnalyzerOutput, CandidateFinding
 CACHE_DIR = os.path.join(os.path.dirname(__file__), "..", "..", "data", "llm_cache")
 
 
-def get_cache_key(model: str, prompt: str, bundle: str) -> str:
-    content = f"{model}:{prompt}:{bundle}".encode("utf-8")
+def get_cache_key(model: str, prompt: str, bundle: str, run_index: int = 1) -> str:
+    content = f"{model}:{prompt}:{bundle}:run_{run_index}".encode("utf-8")
     return hashlib.sha256(content).hexdigest()
 
 
@@ -53,10 +53,11 @@ class LLMClient:
         self,
         prompt: str,
         bundle_text: str,
-        evidence_items: list[dict[str, Any]]
+        evidence_items: list[dict[str, Any]],
+        run_index: int = 1
     ) -> AnalyzerOutput:
         """Analyzes an evidence bundle and returns structured findings."""
-        cache_key = get_cache_key(self.model_name, prompt, bundle_text)
+        cache_key = get_cache_key(self.model_name, prompt, bundle_text, run_index=run_index)
         cached = self._read_cache(cache_key)
         if cached:
             return cached

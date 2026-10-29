@@ -429,13 +429,13 @@ Rules:
 
 ### 8.4 The verifier gates (the hallucination firewall)
 
-`services/api/civiclens/ai/verify.py`. Hard gates must all pass; then at least 2 of 3 soft gates must pass for `verified`, otherwise `needs_review`. Any hard-gate failure → `rejected` (kept, with reason).
+`services/api/civiclens/ai/verify.py`. Hard gates must all pass; then at least 2 of 3 soft gates must pass for `verified`, provided G7 does not return `not_supported`. If G7 returns `not_supported`, the candidate cannot be verified and is routed to `needs_review`. Any hard-gate failure → `rejected` (kept, with reason).
 
 | Gate | Type | Check |
 |---|---|---|
 | G1 Schema | hard | Output parses into `AnalyzerOutput`; text fields within length limits we enforce in code |
 | G2 Evidence exists | hard | Every `evidence_id` exists in this scan and belongs to the page whose bundle was sent |
-| G3 Quote match | hard | `normalize(quoted_text)` is a substring of `normalize(text + context)` of a cited item (NFC, collapse whitespace, case-fold Latin only) |
+| G3 Quote match | hard | `normalize(quoted_text)` is a substring of `normalize(item.text)` of a cited item (NFC, collapse whitespace, case-fold Latin only) |
 | G4 Element relocates | hard (element issues) | The stored selector resolves to exactly one visible element in the stored DOM snapshot and its bbox is within 8 px of the recorded one |
 | G5 Type check | hard when a checker exists | `VAGUE_LINK_TEXT` → lexicon hit or classifier p ≥ τ; `LOW_CONTRAST` → recomputed ratio below threshold; `BROKEN_LINK` → recorded status ≥ 400; `KEY_INFO_ONLY_IN_PDF` → href/content-type is PDF; `DEEP_NAVIGATION` → journey graph depth; `wcag_sc` ∈ allowed set for the issue type |
 | G6 Entailment | soft | HHEM consistency score of (premise = cited text + context, hypothesis = the factual part of `citizen_impact`) ≥ 0.5. English evidence only; for Hindi evidence this gate is skipped and G7 must pass |

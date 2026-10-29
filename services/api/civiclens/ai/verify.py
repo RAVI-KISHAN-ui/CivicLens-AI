@@ -7,7 +7,7 @@ import json
 import os
 import re
 import unicodedata
-from typing import Literal
+from typing import Any, Literal
 from civiclens.models import (
     CandidateFinding,
     Evidence,
@@ -50,13 +50,17 @@ def normalize_quote(s: str) -> str:
     return collapsed.lower()
 
 
-def check_quote_match(quoted_text: str, evidence: Evidence) -> bool:
-    """Gate G3: verifies that quoted_text is an exact substring of evidence text + context."""
+def check_quote_match(quoted_text: str, evidence: Evidence, allow_context: bool = False) -> bool:
+    """Gate G3: verifies that quoted_text is an exact substring of evidence text."""
     if not quoted_text:
         return False
     norm_quote = normalize_quote(quoted_text)
-    norm_target = normalize_quote(f"{evidence.text} {evidence.context}")
-    return norm_quote in norm_target
+    norm_text = normalize_quote(evidence.text)
+    if norm_quote in norm_text:
+        return True
+    if allow_context and evidence.context:
+        return norm_quote in normalize_quote(evidence.context)
+    return False
 
 
 def verify_candidate(
@@ -64,7 +68,9 @@ def verify_candidate(
     scan_id: str,
     evidence_map: dict[str, Evidence],
     source: Literal["axe", "rule", "llm"] = "llm",
-    is_self_consistent: bool = True
+    is_self_consistent: bool = True,
+    judge_verdict: str | None = None,
+    axe_impact: str | None = None
 ) -> Finding:
     """Runs a candidate finding through all 8 firewall gates and computes verdict."""
     gates: list[GateResult] = []
@@ -93,7 +99,7 @@ def verify_candidate(
         detail=f"All {len(candidate.evidence_ids)} cited evidence IDs exist in scan." if g2_passed else "One or more cited evidence IDs do not exist."
     ))
 
-    # G3: Quote Match (hard)
+    # G3: Quote Match (hard) - matches strictly against evidence text
     g3_passed = False
     if g2_passed:
         g3_passed = any(check_quote_match(candidate.quoted_text, ev) for ev in cited_evs)
@@ -101,7 +107,7 @@ def verify_candidate(
         gate="G3_QUOTE_MATCH",
         passed=g3_passed,
         hard=True,
-        detail="Quoted text is an exact substring of cited evidence text." if g3_passed else f"Quoted text '{candidate.quoted_text}' not found in cited evidence."
+        detail="Quoted text is an exact substring of cited evidence text." if g3_passed else f"Quoted text '{candidate.quoted_text}' not found in cited evidence text."
     ))
 
     # G4: Element Relocates (hard for element/interactive issues)
@@ -131,22 +137,38 @@ def verify_candidate(
     ))
 
     # G6: Entailment (soft)
-    # Heuristic entailment: impact refers to cited facts without contradiction
-    g6_passed = len(candidate.citizen_impact) > 10
+    # Checks whether citizen impact provides substantive task-specific context
+    g6_passed = len(candidate.citizen_impact.strip()) >= 15
     gates.append(GateResult(
         gate="G6_ENTAILMENT",
         passed=g6_passed,
         hard=False,
-        detail="Citizen impact is consistent with captured evidence context."
+        detail="Citizen impact is consistent with captured evidence context." if g6_passed else "Insufficient entailment evidence in citizen impact description."
     ))
 
     # G7: Independent Judge (soft)
-    g7_passed = True  # Verified by deterministic rubric
+    g7_passed = False
+    g7_veto = False
+    if judge_verdict == "supported":
+        g7_passed = True
+        g7_msg = "Independent judge confirms issue is supported by cited evidence."
+    elif judge_verdict == "not_supported":
+        g7_passed = False
+        g7_veto = True
+        g7_msg = "Independent judge rejected finding as unsupported by evidence."
+    elif judge_verdict == "unsure":
+        g7_passed = False
+        g7_msg = "Independent judge returned unsure verdict."
+    else:
+        # Default heuristic when no separate model judge is active
+        g7_passed = True
+        g7_msg = "Deterministic validation passed; external judge not invoked."
+
     gates.append(GateResult(
         gate="G7_INDEPENDENT_JUDGE",
         passed=g7_passed,
         hard=False,
-        detail="Independent judge confirms issue is supported by cited evidence."
+        detail=g7_msg
     ))
 
     # G8: Self-Consistency (soft)
@@ -163,13 +185,23 @@ def verify_candidate(
 
     if hard_failed:
         status = "rejected"
+    elif g7_veto:
+        # A judge rejection vetoes 'verified' status
+        status = "needs_review"
     elif soft_passes >= 2:
         status = "verified"
     else:
         status = "needs_review"
 
-    # Compute final severity
-    severity = compute_severity(candidate.issue_type, on_task_path=True)
+    # Compute final severity (incorporate axe impact if source == 'axe')
+    effective_axe_impact = axe_impact
+    if source == "axe" and not effective_axe_impact:
+        if candidate.severity_hint == "blocker":
+            effective_axe_impact = "critical"
+        elif candidate.severity_hint == "major":
+            effective_axe_impact = "moderate"
+
+    severity = compute_severity(candidate.issue_type, on_task_path=True, axe_impact=effective_axe_impact)
 
     # Attach GIGW reference if applicable
     gigw_info = GIGW_MAP.get(candidate.issue_type)

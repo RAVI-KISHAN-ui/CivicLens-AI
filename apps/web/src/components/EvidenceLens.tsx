@@ -1,5 +1,6 @@
-import React from 'react';
-import { Finding } from '../types';
+import React, { useEffect, useState } from 'react';
+import { Finding, Evidence } from '../types';
+import { fetchEvidence } from '../api';
 
 interface EvidenceLensProps {
   finding: Finding | null;
@@ -7,6 +8,35 @@ interface EvidenceLensProps {
 }
 
 export const EvidenceLens: React.FC<EvidenceLensProps> = ({ finding, t }) => {
+  const [evidenceItem, setEvidenceItem] = useState<Evidence | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    let isMounted = true;
+    async function loadEvidence() {
+      if (!finding || !finding.evidence_ids.length) {
+        setEvidenceItem(null);
+        return;
+      }
+      setLoading(true);
+      try {
+        const evList = await fetchEvidence(finding.scan_id);
+        if (isMounted) {
+          const match = evList.find((e) => finding.evidence_ids.includes(e.id)) || null;
+          setEvidenceItem(match);
+        }
+      } catch (err) {
+        console.error('Failed to load evidence for lens:', err);
+      } finally {
+        if (isMounted) setLoading(false);
+      }
+    }
+    loadEvidence();
+    return () => {
+      isMounted = false;
+    };
+  }, [finding]);
+
   if (!finding) {
     return (
       <div
@@ -67,13 +97,13 @@ export const EvidenceLens: React.FC<EvidenceLensProps> = ({ finding, t }) => {
       </div>
 
       <div style={{ padding: '16px' }}>
-        {/* Simulated Zoomed Viewport with Focus Ring */}
+        {/* Real Viewport Evidence Anchor */}
         <div
           style={{
             backgroundColor: 'var(--paper)',
             border: '2px dashed var(--border-ui)',
             borderRadius: 'var(--radius-sm)',
-            padding: '20px',
+            padding: '16px',
             marginBottom: '16px',
             position: 'relative'
           }}
@@ -84,10 +114,15 @@ export const EvidenceLens: React.FC<EvidenceLensProps> = ({ finding, t }) => {
               color: 'var(--ink-2)',
               marginBottom: '6px',
               textTransform: 'uppercase',
-              letterSpacing: '0.05em'
+              letterSpacing: '0.05em',
+              display: 'flex',
+              justifyContent: 'space-between'
             }}
           >
-            Target Element Snapshot (Zoomed 1.5×)
+            <span>Target Element Evidence</span>
+            {evidenceItem?.device && (
+              <span style={{ textTransform: 'uppercase' }}>[{evidenceItem.device}]</span>
+            )}
           </div>
 
           <div
@@ -96,8 +131,9 @@ export const EvidenceLens: React.FC<EvidenceLensProps> = ({ finding, t }) => {
               borderRadius: 'var(--radius-sm)',
               padding: '10px 14px',
               backgroundColor: 'var(--surface)',
-              boxShadow: `0 0 0 4px ${severityColor}33`,
-              display: 'inline-block'
+              boxShadow: `0 0 0 4px ${severityColor}22`,
+              display: 'block',
+              marginBottom: '8px'
             }}
           >
             <span
@@ -106,15 +142,51 @@ export const EvidenceLens: React.FC<EvidenceLensProps> = ({ finding, t }) => {
                 fontSize: '0.9rem',
                 backgroundColor: 'rgba(255, 235, 59, 0.35)',
                 padding: '2px 6px',
-                borderRadius: '3px'
+                borderRadius: '3px',
+                display: 'inline-block'
               }}
             >
               "{finding.quoted_text}"
             </span>
+            {evidenceItem?.context && (
+              <div
+                style={{
+                  fontSize: '0.8rem',
+                  color: 'var(--ink-2)',
+                  marginTop: '8px',
+                  fontStyle: 'italic'
+                }}
+              >
+                Context: {evidenceItem.context}
+              </div>
+            )}
           </div>
 
-          <div style={{ fontSize: '0.75rem', color: 'var(--ink-2)', marginTop: '10px', fontFamily: 'var(--font-mono)' }}>
-            Selector: a#guidelines • Evidence: {finding.evidence_ids.join(', ')}
+          <div
+            style={{
+              fontSize: '0.75rem',
+              color: 'var(--ink-2)',
+              marginTop: '10px',
+              fontFamily: 'var(--font-mono)',
+              wordBreak: 'break-all'
+            }}
+          >
+            <div>
+              <strong>Selector:</strong>{' '}
+              {evidenceItem?.selector ? (
+                <span style={{ color: 'var(--accent)' }}>{evidenceItem.selector}</span>
+              ) : (
+                <span style={{ color: 'var(--ink-2)' }}>Element selector captured in DOM snapshot</span>
+              )}
+            </div>
+            {evidenceItem?.bbox && (
+              <div style={{ marginTop: '2px' }}>
+                <strong>BBox [x, y, w, h]:</strong> [{evidenceItem.bbox.join(', ')}]
+              </div>
+            )}
+            <div style={{ marginTop: '2px' }}>
+              <strong>Evidence IDs:</strong> {finding.evidence_ids.join(', ')}
+            </div>
           </div>
         </div>
 
@@ -125,8 +197,16 @@ export const EvidenceLens: React.FC<EvidenceLensProps> = ({ finding, t }) => {
               {finding.issue_type.replace(/_/g, ' ')}
             </h4>
             <div style={{ display: 'flex', gap: '8px', fontSize: '0.8rem', color: 'var(--ink-2)' }}>
-              {finding.wcag_sc && <span>WCAG 2.2: <strong>{finding.wcag_sc}</strong></span>}
-              {finding.gigw_ref && <span>• <strong>{finding.gigw_ref}</strong></span>}
+              {finding.wcag_sc && (
+                <span>
+                  WCAG 2.2: <strong>{finding.wcag_sc}</strong>
+                </span>
+              )}
+              {finding.gigw_ref && (
+                <span>
+                  • <strong>{finding.gigw_ref}</strong>
+                </span>
+              )}
             </div>
           </div>
 

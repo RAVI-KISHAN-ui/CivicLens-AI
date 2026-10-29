@@ -78,6 +78,9 @@ def _seed_demo_fixture():
                 for f_data in data.get("findings", []):
                     finding = Finding(**f_data)
                     store.save_finding(finding)
+                for ev_data in data.get("evidence", []):
+                    ev = Evidence(**ev_data)
+                    store.save_evidence(ev)
                 for fact_data in data.get("facts", []):
                     fact = CitedFact(**fact_data)
                     store.save_scan_fact(scan.id, fact)
@@ -178,7 +181,7 @@ async def _execute_scan_pipeline(scan_id: str, url: str, task_yaml: str):
         for ev in evidence_list:
             store.save_evidence(ev)
 
-        ev_map = {ev.id: ev}
+        ev_map = {e.id: e for e in evidence_list}
 
         # Step 2: Contextual AI Analysis
         llm_candidates, consistent_keys = await analyze_page_evidence(
@@ -261,6 +264,14 @@ async def _execute_scan_pipeline(scan_id: str, url: str, task_yaml: str):
 @app.get("/api/scans/{scan_id}/events")
 async def scan_events(scan_id: str):
     """Server-Sent Events (SSE) stream for live scan progress."""
+    scan = store.get_scan(scan_id)
+    if scan and scan.status in ("completed", "failed"):
+        async def completed_generator():
+            yield "event: connected\ndata: {\"status\": \"listening\"}\n\n"
+            terminal_event = "scan_done" if scan.status == "completed" else "error"
+            yield f"event: {terminal_event}\ndata: {{\"scan_id\": \"{scan.id}\", \"status\": \"{scan.status}\"}}\n\n"
+        return StreamingResponse(completed_generator(), media_type="text/event-stream")
+
     queue: asyncio.Queue = asyncio.Queue()
     if scan_id not in scan_subscribers:
         scan_subscribers[scan_id] = []
@@ -347,7 +358,8 @@ def compare_metrics(scan_id: str):
         raise HTTPException(status_code=404, detail="Scan not found.")
     return {
         "original": scan.metrics_original,
-        "prototype": scan.metrics_prototype
+        "prototype": scan.metrics_prototype,
+        "is_estimated": True if (scan.id.startswith("demo-") or not scan.metrics_prototype) else False
     }
 
 

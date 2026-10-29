@@ -59,7 +59,7 @@ class JourneyRunner:
                 })
 
             # Inspect per device profile
-            for dev_name in devices:
+            for dev_idx, dev_name in enumerate(devices):
                 is_mobile = "mobile" in dev_name or "android" in dev_name
                 device_type = "mobile" if is_mobile else "desktop"
 
@@ -80,13 +80,16 @@ class JourneyRunner:
                     dom_hash=compute_dom_hash(page_text)
                 )
                 all_evidence.append(ev_page)
-                total_words += len(page_text.split())
 
                 # 2. Add sample task links
                 link_text = "Click here" if step_idx == 1 else "Central Sector Scheme Guidelines (PDF)"
                 kind = "pdf_link" if ".pdf" in link_text.lower() or "pdf" in link_text.lower() else "link"
-                if kind == "pdf_link":
-                    pdf_hops += 1
+
+                # Count journey-level metric once per step, not per device
+                if dev_idx == 0:
+                    total_words += len(page_text.split()) + len(link_text.split())
+                    if kind == "pdf_link":
+                        pdf_hops += 1
 
                 ev_link = build_evidence(
                     scan_id=scan_id,
@@ -105,7 +108,6 @@ class JourneyRunner:
                     dom_hash=compute_dom_hash(link_text)
                 )
                 all_evidence.append(ev_link)
-                total_words += len(link_text.split())
 
             # Run deterministic rules on captured evidence
             step_evidence = [e for e in all_evidence if f"p{step_idx}" in e.page_id]

@@ -15,9 +15,15 @@ export function App() {
   useEffect(() => {
     try {
       const savedLang = localStorage.getItem('civiclens_lang') as 'en' | 'hi';
-      if (savedLang) setLang(savedLang);
+      if (savedLang) {
+        setLang(savedLang);
+        document.documentElement.lang = savedLang;
+      }
       const savedTheme = localStorage.getItem('civiclens_theme') as 'light' | 'dark';
-      if (savedTheme) setTheme(savedTheme);
+      if (savedTheme) {
+        setTheme(savedTheme);
+        document.documentElement.setAttribute('data-theme', savedTheme);
+      }
     } catch (e) {
       // LocalStorage access handling
     }

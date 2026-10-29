@@ -10,6 +10,11 @@ from civiclens.models import Evidence, CandidateFinding
 AXE_TAGS = ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"]
 
 
+import re
+
+_SC_TAG = re.compile(r"^wcag(\d)(\d)(\d{1,2})$")
+
+
 def parse_axe_violations(
     axe_results: dict[str, Any],
     scan_id: str,
@@ -29,11 +34,12 @@ def parse_axe_violations(
         impact = v.get("impact", "moderate")
         tags = v.get("tags", [])
 
-        # Extract WCAG success criteria tags like "wcag143" -> "1.4.3"
+        # Extract WCAG success criteria tags like "wcag143" -> "1.4.3", "wcag1410" -> "1.4.10"
         wcag_sc = None
         for tag in tags:
-            if tag.startswith("wcag") and len(tag) == 7 and tag[4:].isdigit():
-                wcag_sc = f"{tag[4]}.{tag[5]}.{tag[6]}"
+            m = _SC_TAG.match(tag)
+            if m:
+                wcag_sc = ".".join(m.groups())
                 break
 
         for node_idx, node in enumerate(v.get("nodes", [])):

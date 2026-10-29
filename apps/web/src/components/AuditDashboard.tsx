@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Scan, Finding } from '../types';
-import { fetchScan, fetchFindings, reviewFinding } from '../api';
+import { fetchScan, fetchFindings, reviewFinding, triggerScan } from '../api';
 import { FirewallCounter } from './FirewallCounter';
 import { EvidenceLens } from './EvidenceLens';
 import { GateTrail } from './GateTrail';
@@ -31,6 +31,10 @@ export const AuditDashboard: React.FC<AuditDashboardProps> = ({ t }) => {
   // Keyboard navigation
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement | null;
+      if (target && (['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName) || target.isContentEditable)) {
+        return;
+      }
       if (!findings.length || !selectedFinding) return;
       const currentIndex = findings.findIndex((f) => f.id === selectedFinding.id);
 
@@ -57,7 +61,11 @@ export const AuditDashboard: React.FC<AuditDashboardProps> = ({ t }) => {
 
   const handleReview = async (decision: 'accepted' | 'dismissed') => {
     if (!scan || !selectedFinding) return;
-    await reviewFinding(scan.id, selectedFinding.id, decision);
+    const ok = await reviewFinding(scan.id, selectedFinding.id, decision);
+    if (!ok) {
+      alert('Failed to save review decision to server.');
+      return;
+    }
     const updated = { ...selectedFinding, review: decision };
     setSelectedFinding(updated);
     setFindings(findings.map((f) => (f.id === selectedFinding.id ? updated : f)));
@@ -66,13 +74,22 @@ export const AuditDashboard: React.FC<AuditDashboardProps> = ({ t }) => {
   const handleRunScan = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsScanning(true);
-    // Trigger or reload demo scan
-    const s = await fetchScan();
-    setScan(s);
-    const f = await fetchFindings(s.id);
-    setFindings(f);
-    if (f.length > 0) setSelectedFinding(f[0]);
-    setIsScanning(false);
+    try {
+      let s: Scan;
+      if (urlInput && urlInput.trim() !== 'https://scholarships.gov.in/') {
+        s = await triggerScan(urlInput.trim());
+      } else {
+        s = await fetchScan('scan_demo_scholarship');
+      }
+      setScan(s);
+      const f = await fetchFindings(s.id);
+      setFindings(f);
+      if (f.length > 0) setSelectedFinding(f[0]);
+    } catch (err: any) {
+      alert(`Scan failed: ${err.message || err}`);
+    } finally {
+      setIsScanning(false);
+    }
   };
 
   if (!scan) {
@@ -112,7 +129,7 @@ export const AuditDashboard: React.FC<AuditDashboardProps> = ({ t }) => {
               style={{
                 padding: '8px 20px',
                 backgroundColor: 'var(--accent)',
-                color: '#fff',
+                color: 'var(--accent-fg)',
                 border: 'none',
                 borderRadius: 'var(--radius-sm)',
                 fontWeight: 600,
@@ -139,12 +156,7 @@ export const AuditDashboard: React.FC<AuditDashboardProps> = ({ t }) => {
       {/* 3-Pane Finding Detail Inspector */}
       <section
         aria-label="Finding Inspection Panels"
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'minmax(280px, 1fr) minmax(360px, 1.4fr) minmax(300px, 1.1fr)',
-          gap: '16px',
-          alignItems: 'start'
-        }}
+        className="inspection-grid"
       >
         {/* Pane 1: Finding list */}
         <div

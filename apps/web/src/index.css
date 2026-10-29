@@ -10,6 +10,7 @@
   --ink-2: #4A5162;
   --border-ui: #767C86;
   --accent: #1F4FD1;
+  --accent-fg: #FFFFFF;
   --accent-strong: #173DA6;
   --blocker: #B42318;
   --major: #A15C07;
@@ -28,6 +29,7 @@
   --ink-2: #A9B0BC;
   --border-ui: #5F6775;
   --accent: #8CADFF;
+  --accent-fg: #0A0D11;
   --accent-strong: #ADC6FF;
   --blocker: #FF8A80;
   --major: #F2B14C;
@@ -44,6 +46,7 @@
     --ink-2: #A9B0BC;
     --border-ui: #5F6775;
     --accent: #8CADFF;
+    --accent-fg: #0A0D11;
     --accent-strong: #ADC6FF;
     --blocker: #FF8A80;
     --major: #F2B14C;
@@ -110,4 +113,17 @@ button {
 
 .skip-link:focus {
   top: 12px;
+}
+
+.inspection-grid {
+  display: grid;
+  grid-template-columns: minmax(280px, 1fr) minmax(360px, 1.4fr) minmax(300px, 1.1fr);
+  gap: 16px;
+  align-items: start;
+}
+
+@media (max-width: 960px) {
+  .inspection-grid {
+    grid-template-columns: 1fr;
+  }
 }

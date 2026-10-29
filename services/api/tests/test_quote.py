@@ -22,7 +22,9 @@ def test_quote_match_success():
     assert check_quote_match("Click here", ev)
     assert check_quote_match("click HERE", ev)
     assert check_quote_match("download", ev)
-    assert check_quote_match("Rules and conditions", ev)
+    # Context match supported when allow_context=True
+    assert check_quote_match("Rules and conditions", ev, allow_context=True)
+    assert not check_quote_match("Rules and conditions", ev, allow_context=False)
 
 
 def test_quote_match_failure():

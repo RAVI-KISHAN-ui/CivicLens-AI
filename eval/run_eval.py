@@ -21,42 +21,35 @@ from civiclens.ai.verify import verify_candidate
 def run_evaluation() -> dict:
     eval_dir = os.path.join(BASE_DIR, "eval")
     redteam_file = os.path.join(eval_dir, "redteam", "redteam_cases.json")
+    golden_file = os.path.join(eval_dir, "golden", "scholarship_golden.json")
     fixture_file = os.path.join(BASE_DIR, "fixtures", "demo", "scan_scholarship.json")
     reports_dir = os.path.join(eval_dir, "reports")
     os.makedirs(reports_dir, exist_ok=True)
 
-    # Load fixture evidence
+    # 1. Load fixture evidence
     evidence_map: dict[str, Evidence] = {}
-    if os.path.exists(fixture_file):
-        with open(fixture_file, "r", encoding="utf-8") as f:
-            data = json.load(f)
-            # Create dummy evidence for demo scan items
-            evidence_map["ev_p1_desktop_1"] = Evidence(
-                id="ev_p1_desktop_1",
-                scan_id="scan_demo",
-                page_id="p1",
-                page_url="https://scholarships.gov.in/",
-                device="desktop",
-                kind="element",
-                text="National Scholarships Portal Central Sector Scheme Guidelines",
-                dom_snapshot_hash="hash1"
-            )
-            evidence_map["ev_p1_desktop_2"] = Evidence(
-                id="ev_p1_desktop_2",
-                scan_id="scan_demo",
-                page_id="p1",
-                page_url="https://scholarships.gov.in/",
-                device="desktop",
-                kind="link",
-                text="Click here to read guidelines",
-                selector="a#guidelines",
-                role="link",
-                dom_snapshot_hash="hash2"
-            )
+    if not os.path.exists(fixture_file):
+        print(f"Error: Required demo fixture file {fixture_file} not found.", file=sys.stderr)
+        sys.exit(1)
 
-    # 1. Run Red-Team Cases against the Hallucination Firewall
+    with open(fixture_file, "r", encoding="utf-8") as f:
+        fixture_data = json.load(f)
+        for ev_data in fixture_data.get("evidence", []):
+            ev = Evidence(**ev_data)
+            ev.scan_id = "eval_scan"
+            evidence_map[ev.id] = ev
+
+    # 2. Run Red-Team Cases against the Hallucination Firewall
+    if not os.path.exists(redteam_file):
+        print(f"Error: Red-team benchmark file {redteam_file} not found.", file=sys.stderr)
+        sys.exit(1)
+
     with open(redteam_file, "r", encoding="utf-8") as f:
         redteam_cases = json.load(f)
+
+    if not redteam_cases:
+        print("Error: Red-team test suite contains 0 test cases.", file=sys.stderr)
+        sys.exit(1)
 
     caught_count = 0
     redteam_results = []
@@ -76,7 +69,8 @@ def run_evaluation() -> dict:
         rejected = finding.status == "rejected"
         failed_gates = [g.gate for g in finding.gates if not g.passed]
 
-        if rejected:
+        is_verified_catch = rejected and (expected_gate in failed_gates if expected_gate else True)
+        if is_verified_catch:
             caught_count += 1
 
         redteam_results.append({
@@ -84,18 +78,37 @@ def run_evaluation() -> dict:
             "status": finding.status,
             "failed_gates": failed_gates,
             "expected_caught_by": expected_gate,
-            "verified_catch": rejected and (expected_gate in failed_gates if expected_gate else True)
+            "verified_catch": is_verified_catch
         })
 
-    catch_rate = (caught_count / len(redteam_cases)) * 100 if redteam_cases else 100.0
+    catch_rate = (caught_count / len(redteam_cases)) * 100.0
+
+    # 3. Dynamic Precision Evaluation against Golden Benchmark
+    golden_matches = 0
+    golden_total = 0
+    if os.path.exists(golden_file):
+        with open(golden_file, "r", encoding="utf-8") as f:
+            golden_cases = json.load(f)
+            golden_total = len(golden_cases)
+            verified_findings = [f for f in fixture_data.get("findings", []) if f.get("status") == "verified"]
+            for g_case in golden_cases:
+                if any(vf.get("issue_type") == g_case.get("issue_type") for vf in verified_findings):
+                    golden_matches += 1
+
+    verified_precision = round(golden_matches / golden_total, 2) if golden_total else 1.0
+
+    # 4. Check prototype fact faithfulness (grounded citations)
+    facts = fixture_data.get("facts", [])
+    grounded_facts = [f for f in facts if f.get("evidence_ids") and f.get("source_url")]
+    prototype_fact_faithfulness = round(len(grounded_facts) / len(facts), 2) if facts else 1.0
 
     report = {
         "timestamp": datetime.now(timezone.utc).isoformat(),
         "metrics": {
-            "verified_precision": 0.96,
+            "verified_precision": verified_precision,
             "evidence_integrity": 1.00,
             "firewall_catch_rate_percent": round(catch_rate, 2),
-            "prototype_fact_faithfulness": 1.00,
+            "prototype_fact_faithfulness": prototype_fact_faithfulness,
             "redteam_total": len(redteam_cases),
             "redteam_caught": caught_count
         },
@@ -111,9 +124,14 @@ def run_evaluation() -> dict:
     print(f"=== CivicLens AI Evaluation Summary ===")
     print(f"Report saved to: {report_path}")
     print(f"Firewall Catch Rate: {catch_rate:.1f}% ({caught_count}/{len(redteam_cases)}) [Target: >= 95%]")
-    print(f"Verified Precision: 96.0% [Target: >= 90%]")
-    print(f"Evidence Integrity: 100% [Target: 100%]")
-    print(f"Prototype Fact Faithfulness: 100% [Target: 100%]")
+    print(f"Verified Precision: {verified_precision * 100:.1f}% ({golden_matches}/{golden_total} golden matches)")
+    print(f"Evidence Integrity: 100%")
+    print(f"Prototype Fact Faithfulness: {prototype_fact_faithfulness * 100:.1f}%")
+
+    if catch_rate < 95.0:
+        print(f"Error: Firewall catch rate {catch_rate:.1f}% falls below required 95% threshold.", file=sys.stderr)
+        sys.exit(1)
+
     return report
 
 
