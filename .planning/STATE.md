@@ -1,11 +1,8 @@
 # Project State — CivicLens AI
 
 ## Current Status
-- **Active Phase**: Phase 1 Complete -> Moving to Phase 2
+- **Active Phase**: Phase 2 Complete -> Moving to Phase 3
 - **Completed**:
-  - `AGENTS.md` and `CLAUDE.md` initialized at root.
-  - `DECISIONS.md`, `.gitignore`, `.env.example` created.
-  - Standards initialized (`wcag22_aa.json`, `issue_sc_map.json`, `gigw_map.json`).
-  - Task specs configured (`tasks/scholarship-eligibility-docs.yaml`).
-  - GSD roadmap and requirements established.
-- **Next Step**: Phase 1 Git Commit, Push & Pull; then start Phase 2.
+  - Phase 1: Foundation, AGENTS.md, standards, task YAML.
+  - Phase 2: Backend models, SQLite store with resource cleanup, SSRF security, rubric calculations, unit tests.
+- **Next Step**: Phase 2 Git Commit, Push & Pull; then start Phase 3.

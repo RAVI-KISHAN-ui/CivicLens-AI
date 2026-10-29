@@ -6,7 +6,7 @@
   - Task specification (`scholarship-eligibility-docs.yaml`).
   - Commit, push to GitHub, pull.
 
-- [ ] **Phase 2: Backend Core Models, Store & Security**
+- [x] **Phase 2: Backend Core Models, Store & Security**
   - Setup `services/api/` package with `pyproject.toml`.
   - Pydantic models in `services/api/civiclens/models.py`.
   - SSRF protection & domain allowlisting in `security.py`.
