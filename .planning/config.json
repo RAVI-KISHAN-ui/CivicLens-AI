@@ -1,0 +1,12 @@
+{
+  "project_name": "CivicLens AI",
+  "default_mode": "ponytail",
+  "workflow": "gsd",
+  "models": {
+    "analyzer": "claude-sonnet-5-5",
+    "extractor": "claude-sonnet-5-5",
+    "fallback": "claude-haiku-5-5",
+    "judge": "gemini-flash"
+  },
+  "created_at": "2026-10-30T00:46:00+05:30"
+}

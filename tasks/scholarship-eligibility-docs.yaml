@@ -1,0 +1,21 @@
+id: scholarship-eligibility-docs
+title: Find scholarship eligibility, required documents and the official apply link
+persona: "First-year undergraduate, Hindi-first, mid-range Android phone, patchy 4G"
+start_url: https://scholarships.gov.in/
+allowed_domains: ["scholarships.gov.in", "*.gov.in", "*.nic.in"]
+goal_questions:
+  - id: eligibility
+    text: "Who is eligible for Central Sector Scheme of Scholarship?"
+  - id: documents
+    text: "Which documents are required for application?"
+  - id: apply_link
+    text: "What is the official link to apply?"
+journey:
+  - goto: "https://scholarships.gov.in/"
+    capture: home_page
+  - click: { role: link, name: "Schemes" }
+    capture: schemes_list
+  - click: { role: link, name: "Central Sector Scheme Guidelines" }
+    capture: scheme_guidelines
+max_pages: 15
+devices: [desktop-1440, android-midrange-throttled]
