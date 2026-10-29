@@ -1,0 +1,160 @@
+{
+  "scan": {
+    "id": "scan_demo_scholarship",
+    "task_id": "scholarship-eligibility-docs",
+    "url": "https://scholarships.gov.in/",
+    "status": "completed",
+    "total_candidates": 34,
+    "verified_count": 24,
+    "needs_review_count": 6,
+    "rejected_count": 4,
+    "metrics_original": {
+      "clicks_to_answer": 9,
+      "pages_visited": 4,
+      "pdf_hops": 2,
+      "distinct_domains": 1,
+      "time_to_answer_ms": 32400,
+      "words_on_path": 2180,
+      "bytes_transferred": 2840000
+    },
+    "metrics_prototype": {
+      "clicks_to_answer": 3,
+      "pages_visited": 1,
+      "pdf_hops": 0,
+      "distinct_domains": 1,
+      "time_to_answer_ms": 4200,
+      "words_on_path": 340,
+      "bytes_transferred": 78000
+    }
+  },
+  "findings": [
+    {
+      "id": "f_vague_link_ev_p1_2",
+      "scan_id": "scan_demo_scholarship",
+      "source": "llm",
+      "issue_type": "VAGUE_LINK_TEXT",
+      "evidence_ids": ["ev_p1_desktop_2"],
+      "quoted_text": "Click here",
+      "wcag_sc": "2.4.4",
+      "gigw_ref": "GIGW 6.5.1: Meaningful Hyperlink Text",
+      "who_is_affected": "Screen-reader & first-time applicants",
+      "citizen_impact": "Link text 'Click here' does not convey target purpose, forcing users to read prior paragraphs to deduce target.",
+      "suggested_fix": "Rename link to 'Download Central Sector Scheme Guidelines (PDF)'.",
+      "severity": "major",
+      "on_task_path": true,
+      "status": "verified",
+      "gates": [
+        {"gate": "G1_SCHEMA", "passed": true, "hard": true, "detail": "Schema verified."},
+        {"gate": "G2_EVIDENCE_EXISTS", "passed": true, "hard": true, "detail": "Evidence ev_p1_desktop_2 exists in scan."},
+        {"gate": "G3_QUOTE_MATCH", "passed": true, "hard": true, "detail": "Quoted text matches cited item."},
+        {"gate": "G4_ELEMENT_RELOCATES", "passed": true, "hard": true, "detail": "Element relocated at bbox [45, 160, 120, 30]."},
+        {"gate": "G5_TYPE_CHECK", "passed": true, "hard": true, "detail": "Lexicon hit: 'click here', SC 2.4.4 allowed."},
+        {"gate": "G6_ENTAILMENT", "passed": true, "hard": false, "detail": "Entailment score 0.94."},
+        {"gate": "G7_INDEPENDENT_JUDGE", "passed": true, "hard": false, "detail": "Judge confirmed finding."},
+        {"gate": "G8_SELF_CONSISTENCY", "passed": true, "hard": false, "detail": "Consistent in 2/2 analyzer runs."}
+      ],
+      "review": "unreviewed"
+    },
+    {
+      "id": "f_pdf_only_ev_p2_2",
+      "scan_id": "scan_demo_scholarship",
+      "source": "rule",
+      "issue_type": "KEY_INFO_ONLY_IN_PDF",
+      "evidence_ids": ["ev_p2_desktop_2"],
+      "quoted_text": "Central Sector Scheme Guidelines (PDF)",
+      "wcag_sc": "1.3.1",
+      "gigw_ref": "GIGW 7.2.1: Accessible Non-HTML Documents",
+      "who_is_affected": "Citizens on mobile devices with low storage or patchy data",
+      "citizen_impact": "Full eligibility conditions and required certificates are trapped inside a 3.4 MB non-accessible PDF rather than readable HTML.",
+      "suggested_fix": "Extract core eligibility criteria, income caps, and document list into plain HTML on the scheme portal.",
+      "severity": "blocker",
+      "on_task_path": true,
+      "status": "verified",
+      "gates": [
+        {"gate": "G1_SCHEMA", "passed": true, "hard": true, "detail": "Schema valid."},
+        {"gate": "G2_EVIDENCE_EXISTS", "passed": true, "hard": true, "detail": "Evidence exists."},
+        {"gate": "G3_QUOTE_MATCH", "passed": true, "hard": true, "detail": "Quoted text verified."},
+        {"gate": "G4_ELEMENT_RELOCATES", "passed": true, "hard": true, "detail": "Selector resolved."},
+        {"gate": "G5_TYPE_CHECK", "passed": true, "hard": true, "detail": "PDF link confirmed."},
+        {"gate": "G6_ENTAILMENT", "passed": true, "hard": false, "detail": "Direct code rule."},
+        {"gate": "G7_INDEPENDENT_JUDGE", "passed": true, "hard": false, "detail": "Deterministic rule."},
+        {"gate": "G8_SELF_CONSISTENCY", "passed": true, "hard": false, "detail": "Deterministic."}
+      ],
+      "review": "unreviewed"
+    },
+    {
+      "id": "f_rejected_sample",
+      "scan_id": "scan_demo_scholarship",
+      "source": "llm",
+      "issue_type": "VAGUE_LINK_TEXT",
+      "evidence_ids": ["ev_p1_desktop_2"],
+      "quoted_text": "Non-existent text that model hallucinated",
+      "wcag_sc": "2.4.4",
+      "gigw_ref": null,
+      "who_is_affected": "All citizens",
+      "citizen_impact": "Claimed broken link on home navigation.",
+      "suggested_fix": "Replace link text.",
+      "severity": "major",
+      "on_task_path": true,
+      "status": "rejected",
+      "gates": [
+        {"gate": "G1_SCHEMA", "passed": true, "hard": true, "detail": "Schema valid."},
+        {"gate": "G2_EVIDENCE_EXISTS", "passed": true, "hard": true, "detail": "Evidence ev_p1_desktop_2 exists."},
+        {"gate": "G3_QUOTE_MATCH", "passed": false, "hard": true, "detail": "Quote 'Non-existent text...' was NOT found in cited evidence. REJECTED."},
+        {"gate": "G4_ELEMENT_RELOCATES", "passed": true, "hard": true, "detail": "Relocated."},
+        {"gate": "G5_TYPE_CHECK", "passed": true, "hard": true, "detail": "Valid type."},
+        {"gate": "G6_ENTAILMENT", "passed": false, "hard": false, "detail": "Hallucination."},
+        {"gate": "G7_INDEPENDENT_JUDGE", "passed": false, "hard": false, "detail": "Judge rejected claim."},
+        {"gate": "G8_SELF_CONSISTENCY", "passed": false, "hard": false, "detail": "Not seen in run 2."}
+      ],
+      "review": "dismissed"
+    }
+  ],
+  "facts": [
+    {
+      "id": "fact_01",
+      "field": "eligibility",
+      "value": "Undergraduate students enrolled in recognized higher education institutions who scored above the 80th percentile in relevant stream in Class 12 board examination. Annual family income must not exceed ₹4,50,000.",
+      "source_url": "https://scholarships.gov.in/schemes/central-sector",
+      "evidence_ids": ["ev_p1_desktop_1"],
+      "cited_text": "Students above 80th percentile of successful candidates in relevant stream in Class XII with family income up to 4.5 lakh.",
+      "human_checked": true
+    },
+    {
+      "id": "fact_02",
+      "field": "document",
+      "value": "Aadhaar Card or Government Photo Identity Proof",
+      "source_url": "https://scholarships.gov.in/schemes/central-sector",
+      "evidence_ids": ["ev_p1_desktop_1"],
+      "cited_text": "Aadhaar number of the student",
+      "human_checked": true
+    },
+    {
+      "id": "fact_03",
+      "field": "document",
+      "value": "Class 12 Passing Certificate and Marksheet",
+      "source_url": "https://scholarships.gov.in/schemes/central-sector",
+      "evidence_ids": ["ev_p1_desktop_1"],
+      "cited_text": "Class XII marksheet verified by the board",
+      "human_checked": true
+    },
+    {
+      "id": "fact_04",
+      "field": "document",
+      "value": "Income Certificate issued by Revenue Authority",
+      "source_url": "https://scholarships.gov.in/schemes/central-sector",
+      "evidence_ids": ["ev_p1_desktop_1"],
+      "cited_text": "Income Certificate from competent state revenue authority",
+      "human_checked": true
+    },
+    {
+      "id": "fact_05",
+      "field": "apply_link",
+      "value": "https://scholarships.gov.in/fresh/newRegistrationToken",
+      "source_url": "https://scholarships.gov.in/",
+      "evidence_ids": ["ev_p1_desktop_2"],
+      "cited_text": "New Registration / Apply for Central Sector Scheme",
+      "human_checked": true
+    }
+  ]
+}

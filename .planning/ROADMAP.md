@@ -29,7 +29,7 @@
   - Unit tests for verifier gates and quote matching.
   - Commit, push to GitHub, pull.
 
-- [ ] **Phase 5: FastAPI Application, Endpoints & SSE Streaming**
+- [x] **Phase 5: FastAPI Application, Endpoints & SSE Streaming**
   - FastAPI app with CORS and static media serving.
   - SSE endpoint for live scan streaming.
   - REST endpoints for scans, findings, human review, facts, comparison, export.
