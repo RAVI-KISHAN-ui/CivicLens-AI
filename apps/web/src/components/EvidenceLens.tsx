@@ -18,6 +18,7 @@ export const EvidenceLens: React.FC<EvidenceLensProps> = ({ finding, t }) => {
         setEvidenceItem(null);
         return;
       }
+      setEvidenceItem(null);
       setLoading(true);
       try {
         const evList = await fetchEvidence(finding.scan_id);

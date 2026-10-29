@@ -4,11 +4,6 @@
     "title": "Meaningful Link Text",
     "description": "Hyperlink text must clearly describe the purpose or destination of the link."
   },
-  "KEY_INFO_ONLY_IN_PDF": {
-    "clause": "GIGW 5.2.2",
-    "title": "Accessible Documents",
-    "description": "All essential information provided through downloadable formats like PDF must also be available in accessible HTML or an accessible electronic document format."
-  },
   "NO_LANGUAGE_OPTION": {
     "clause": "GIGW 4.1.3",
     "title": "Language Selection",
@@ -18,11 +13,6 @@
     "clause": "GIGW 5.2.14",
     "title": "Contrast Ratio",
     "description": "Visual presentation of text and images of text must have a minimum contrast ratio of at least 4.5:1."
-  },
-  "MISSING_ACCESSIBLE_NAME": {
-    "clause": "GIGW 5.2.55",
-    "title": "Name, Role, Value",
-    "description": "All interactive user interface components must have clearly associated descriptive names and labels."
   },
   "NEW_WINDOW_UNANNOUNCED": {
     "clause": "GIGW 5.2.32",

@@ -33,7 +33,7 @@
   "metric_load_time": "Time on throttled 4G",
   "metric_reading_words": "Words on path (reading load)",
   "proto_subtitle": "Use this 3-step checklist to verify your eligibility and documents before beginning registration.",
-  "proto_checklist_info": "Check off each document as you gather it. Your checklist is saved in your browser.",
+  "proto_checklist_info": "Check off each document as you gather it. Your checklist is kept in memory only and is cleared when you reload or close this page.",
   "proto_copy_checklist": "Copy checklist",
   "proto_copied": "Copied!",
   "proto_ready_apply": "Ready with eligibility and documents? Proceed straight to the official application window.",

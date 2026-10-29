@@ -125,7 +125,7 @@
       "evidence_ids": ["ev_p2_desktop_2"],
       "quoted_text": "Central Sector Scheme Guidelines (PDF)",
       "wcag_sc": "1.3.1",
-      "gigw_ref": "GIGW 5.2.2: Accessible Documents",
+      "gigw_ref": null,
       "who_is_affected": "Citizens on mobile devices with low storage or patchy data",
       "citizen_impact": "Full eligibility conditions and required certificates are trapped inside a 3.4 MB non-accessible PDF rather than readable HTML.",
       "suggested_fix": "Extract core eligibility criteria, income caps, and document list into plain HTML on the scheme portal.",

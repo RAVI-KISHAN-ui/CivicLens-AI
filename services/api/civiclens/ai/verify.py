@@ -125,10 +125,9 @@ def verify_candidate(
     allowed_scs = ISSUE_SC_MAP.get(candidate.issue_type, [])
     g5_passed = True
     g5_msg = "Issue type matches validation checks."
-    if candidate.wcag_sc and allowed_scs and "*" not in allowed_scs:
-        if candidate.wcag_sc not in allowed_scs:
-            g5_passed = False
-            g5_msg = f"WCAG SC '{candidate.wcag_sc}' is not permissible for issue type '{candidate.issue_type}'."
+    if candidate.wcag_sc and "*" not in allowed_scs and candidate.wcag_sc not in allowed_scs:
+        g5_passed = False
+        g5_msg = f"WCAG SC '{candidate.wcag_sc}' is not permissible for issue type '{candidate.issue_type}'."
     gates.append(GateResult(
         gate="G5_TYPE_CHECK",
         passed=g5_passed,
@@ -137,7 +136,7 @@ def verify_candidate(
     ))
 
     # G6: Entailment (soft)
-    # Checks whether citizen impact provides substantive task-specific context
+    # shortcut: length threshold heuristic proxy, upgrade to local HHEM/NLI model in live deployment
     g6_passed = len(candidate.citizen_impact.strip()) >= 15
     gates.append(GateResult(
         gate="G6_ENTAILMENT",
@@ -159,10 +158,14 @@ def verify_candidate(
     elif judge_verdict == "unsure":
         g7_passed = False
         g7_msg = "Independent judge returned unsure verdict."
+    elif source == "llm":
+        # shortcut: cross-vendor judge not configured offline; LLM candidates cannot claim judge pass
+        g7_passed = False
+        g7_msg = "Independent judge not run; G7 cannot pass for LLM candidates."
     else:
-        # Default heuristic when no separate model judge is active
+        # Deterministic findings (axe/rules) do not require independent LLM judge
         g7_passed = True
-        g7_msg = "Deterministic validation passed; external judge not invoked."
+        g7_msg = "Deterministic finding; external judge not required."
 
     gates.append(GateResult(
         gate="G7_INDEPENDENT_JUDGE",

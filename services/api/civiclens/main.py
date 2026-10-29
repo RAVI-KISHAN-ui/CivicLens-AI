@@ -359,7 +359,7 @@ def compare_metrics(scan_id: str):
     return {
         "original": scan.metrics_original,
         "prototype": scan.metrics_prototype,
-        "is_estimated": True if (scan.id.startswith("demo-") or not scan.metrics_prototype) else False
+        "is_estimated": True
     }
 
 
