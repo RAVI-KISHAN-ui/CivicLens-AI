@@ -1,0 +1,26 @@
+[
+  {
+    "id": "gold_01",
+    "issue_type": "VAGUE_LINK_TEXT",
+    "quoted_text": "Click here",
+    "wcag_sc": "2.4.4",
+    "on_task_path": true,
+    "severity": "major"
+  },
+  {
+    "id": "gold_02",
+    "issue_type": "KEY_INFO_ONLY_IN_PDF",
+    "quoted_text": "Central Sector Scheme Guidelines (PDF)",
+    "wcag_sc": "1.3.1",
+    "on_task_path": true,
+    "severity": "blocker"
+  },
+  {
+    "id": "gold_03",
+    "issue_type": "SLOW_ON_MOBILE",
+    "quoted_text": "LCP: 4.8s",
+    "wcag_sc": null,
+    "on_task_path": true,
+    "severity": "major"
+  }
+]

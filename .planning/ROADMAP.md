@@ -53,7 +53,7 @@
   - Offline replay mode support.
   - Commit, push to GitHub, pull.
 
-- [ ] **Phase 8: Evaluation Harness & Final Verification**
+- [x] **Phase 8: Evaluation Harness & Final Verification**
   - Evaluation script (`eval/run_eval.py`) with golden and red-team sets.
   - End-to-end verification and performance budget check.
   - Final documentation, commit, push to GitHub, pull.
