@@ -14,7 +14,7 @@
   - Unit tests for security and models.
   - Commit, push to GitHub, pull.
 
-- [ ] **Phase 3: Inspection Layer & Deterministic Checks**
+- [x] **Phase 3: Inspection Layer & Deterministic Checks**
   - Playwright browser runner with Desktop and Throttled Mobile CDP emulation.
   - Screenshot capture and WebP element cropping.
   - Deterministic rules (vague link lexicon, PDF-only, navigation depth, touch targets, contrast).
