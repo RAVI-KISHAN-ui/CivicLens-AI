@@ -21,7 +21,7 @@
   - Task metrics calculation.
   - Commit, push to GitHub, pull.
 
-- [ ] **Phase 4: AI Layer, Anti-Hallucination Verifier & Citations**
+- [x] **Phase 4: AI Layer, Anti-Hallucination Verifier & Citations**
   - Analyzer prompts with strict JSON schema.
   - LLM client with multi-provider / mock / caching support.
   - 8-Gate Verifier (G1–G8) hallucination firewall.
